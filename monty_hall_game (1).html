@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monty Hall Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f0f0;
+        }
+        .doors {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .door {
+            width: 100px;
+            height: 200px;
+            border: 2px solid #000;
+            margin: 0 20px;
+            line-height: 200px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #ccc;
+            color: #000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .door:hover {
+            background-color: #bbb;
+        }
+        .hidden {
+            display: none;
+        }
+        .car {
+            background-color: green;
+            color: white;
+        }
+        .empty {
+            background-color: red;
+            color: white;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Monty Hall Game</h1>
+    <p>Choose a door:</p>
+    <div class="doors">
+        <div class="door" id="door1" onclick="chooseDoor(1)">1</div>
+        <div class="door" id="door2" onclick="chooseDoor(2)">2</div>
+        <div class="door" id="door3" onclick="chooseDoor(3)">3</div>
+    </div>
+    <p id="message"></p>
+    <button id="switchButton" class="hidden" onclick="switchDoor()">Switch Door</button>
+    <button id="stayButton" class="hidden" onclick="stay()">Stay</button>
+    <button id="replayButton" class="hidden" onclick="replay()">Play Again</button>
+
+    <script>
+        let carBehindDoor = Math.floor(Math.random() * 3) + 1;
+        let userChoice;
+        let revealedDoor;
+
+        function chooseDoor(door) {
+            userChoice = door;
+            document.getElementById('message').innerText = `You chose door ${door}. Let's reveal an empty door.`;
+            revealEmptyDoor();
+        }
+
+        function revealEmptyDoor() {
+            do {
+                revealedDoor = Math.floor(Math.random() * 3) + 1;
+            } while (revealedDoor === carBehindDoor || revealedDoor === userChoice);
+
+            document.getElementById(`door${revealedDoor}`).classList.add('empty');
+            document.getElementById('message').innerText += ` Door ${revealedDoor} is empty. Do you want to switch your choice?`;
+
+            document.getElementById('switchButton').classList.remove('hidden');
+            document.getElementById('stayButton').classList.remove('hidden');
+        }
+
+        function switchDoor() {
+            userChoice = 6 - userChoice - revealedDoor;  // Switch to the remaining door
+            checkWin();
+        }
+
+        function stay() {
+            checkWin();
+        }
+
+        function checkWin() {
+            document.getElementById(`door${carBehindDoor}`).classList.add('car');
+            if (userChoice === carBehindDoor) {
+                document.getElementById('message').innerText = `Congratulations! You won the car behind door ${carBehindDoor}!`;
+            } else {
+                document.getElementById('message').innerText = `Sorry, the car was behind door ${carBehindDoor}.`;
+            }
+
+            document.querySelectorAll('.door').forEach(door => {
+                door.onclick = null;
+            });
+            document.getElementById('switchButton').classList.add('hidden');
+            document.getElementById('stayButton').classList.add('hidden');
+            document.getElementById('replayButton').classList.remove('hidden');
+        }
+
+        function replay() {
+            carBehindDoor = Math.floor(Math.random() * 3) + 1;
+            userChoice = null;
+            revealedDoor = null;
+            document.getElementById('message').innerText = 'Choose a door:';
+
+            document.querySelectorAll('.door').forEach(door => {
+                door.onclick = function() {
+                    chooseDoor(parseInt(door.id.replace('door', '')));
+                };
+                door.classList.remove('car', 'empty');
+                door.innerText = door.id.replace('door', '');
+            });
+
+            document.getElementById('switchButton').classList.add('hidden');
+            document.getElementById('stayButton').classList.add('hidden');
+            document.getElementById('replayButton').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
